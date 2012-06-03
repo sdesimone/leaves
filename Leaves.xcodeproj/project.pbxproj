@@ -55,7 +55,7 @@
 		D33D4EC7117D8D4500BA7203 /* kitten3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = kitten3.jpg; sourceTree = "<group>"; };
 		D33D4EC9117D8D4500BA7203 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		D33D4ECA117D8D4500BA7203 /* paper.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = paper.pdf; sourceTree = "<group>"; };
-		D33D4EDA117D8DCD00BA7203 /* Leaves-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Leaves-Info.plist"; sourceTree = SOURCE_ROOT; };
+		D33D4EDA117D8DCD00BA7203 /* Leaves-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Leaves-Info.plist"; path = "/Volumes/ext/github/leaves/Leaves-Info.plist"; sourceTree = "<absolute>"; };
 		D33D4EFB117D8E7800BA7203 /* Leaves_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Leaves_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		D33D4F00117D8EAE00BA7203 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; };
 		D33D4F3F117E244C00BA7203 /* ExamplesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExamplesViewController.h; sourceTree = "<group>"; };

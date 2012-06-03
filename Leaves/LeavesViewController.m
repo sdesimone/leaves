@@ -10,56 +10,68 @@
 
 @implementation LeavesViewController
 
+/*
 - (void) initialize {
-   leavesView = [[LeavesView alloc] initWithFrame:CGRectZero];
+   leavesView_ = [[LeavesView alloc] initWithFrame:CGRectZero];
 }
-
+*/
+/////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNibName:(NSString *)nibName bundle:(NSBundle *)nibBundle
 {
-   if (self = [super initWithNibName:nibName bundle:nibBundle]) {
-      [self initialize];
+   if ((self = [super initWithNibName:nibName bundle:nibBundle])) {
+//      [self initialize];
    }
    return self;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
    return [self initWithNibName:nil bundle:nil];
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 - (void) awakeFromNib {
 	[super awakeFromNib];
-	[self initialize];
+//	[self initialize];
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
-	[leavesView release];
+	[leavesView_ release];
     [super dealloc];
 }
 
+#pragma mark -
 #pragma mark LeavesViewDataSource methods
-
+/////////////////////////////////////////////////////////////////////////////////////////////
 - (NSUInteger) numberOfPagesInLeavesView:(LeavesView*)leavesView {
 	return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 - (void) renderPageAtIndex:(NSUInteger)index inContext:(CGContextRef)ctx {
 	
 }
 
-#pragma mark  UIViewController methods
-
+#pragma mark -
+/////////////////////////////////////////////////////////////////////////////////////////////
 - (void)loadView {
 	[super loadView];
-	leavesView.frame = self.view.bounds;
-	leavesView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-	[self.view addSubview:leavesView];
+    if (leavesView_) {
+        leavesView_.frame = self.view.bounds;
+        leavesView_.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        [self.view addSubview:leavesView_];
+    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
 - (void) viewDidLoad {
 	[super viewDidLoad];
-	leavesView.dataSource = self;
-	leavesView.delegate = self;
-	[leavesView reloadData];
+    if (leavesView_) {
+        leavesView_.dataSource = self;
+        leavesView_.delegate = self;
+        [leavesView_ reloadData];
+    }
 }
 
 @end
