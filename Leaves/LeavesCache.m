@@ -28,6 +28,13 @@
 	[super dealloc];
 }
 
+/////////////////////////////////////////////////////////////////////////
+- (void)invalidateCacheForPage:(NSUInteger)page {
+	@synchronized (pageCache) {
+        [pageCache removeObjectForKey:[NSNumber numberWithInt:page]];
+    }
+}
+
 
 
 - (CGImageRef) imageForPageIndex:(NSUInteger)pageIndex {

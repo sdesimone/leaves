@@ -25,4 +25,8 @@
 - (void) minimizeToPageIndex:(NSUInteger)pageIndex;
 - (void) flush;
 
+- (void)invalidateCacheForPage:(NSUInteger)page;
+- (CGImageRef)imageForPageIndex:(NSUInteger)pageIndex;
+
+
 @end
