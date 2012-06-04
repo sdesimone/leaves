@@ -20,8 +20,79 @@ CGFloat distance(CGPoint a, CGPoint b);
 
 @synthesize delegate;
 @synthesize leafEdge, currentPageIndex, backgroundRendering, preferredTargetWidth;
+@synthesize topPageOverlay;
+@synthesize bottomPageOverlay;
+@synthesize topPageOverlayMask;
 
-- (void) setUpLayers {
+/////////////////////////////////////////////////////////////////////////
+- (void) setUpLayersDragPage {
+    
+	self.clipsToBounds = YES;
+	
+	topPage = [[CALayer alloc] init];
+	topPage.masksToBounds = YES;
+	topPage.contentsGravity = kCAGravityRight;
+	topPage.backgroundColor = [[UIColor whiteColor] CGColor];
+	
+	topPageOverlay = [[CustomLayer alloc] init];
+	topPageOverlay.masksToBounds = YES;
+	topPage.contentsGravity = kCAGravityRight;
+	
+	bottomPageOverlay = [[CustomLayer alloc] init];
+	bottomPageOverlay.masksToBounds = YES;
+	bottomPage.contentsGravity = kCAGravityLeft;
+	
+    topPageShadow = [[CAGradientLayer alloc] init];
+	topPageShadow.colors = [NSArray arrayWithObjects:
+							(id)[[[UIColor blackColor] colorWithAlphaComponent:0.6] CGColor],
+							(id)[[UIColor clearColor] CGColor],
+							nil];
+	topPageShadow.startPoint = CGPointMake(1,0.5);
+	topPageShadow.endPoint = CGPointMake(0,0.5);
+	
+	topPageReverse = [[CALayer alloc] init];
+	topPageReverse.backgroundColor = [[UIColor whiteColor] CGColor];
+	topPageReverse.masksToBounds = YES;
+	
+	topPageReverseImage = [[CALayer alloc] init];
+	topPageReverseImage.masksToBounds = YES;
+	topPageReverseImage.contentsGravity = kCAGravityRight;
+	
+	topPageReverseOverlay = [[CALayer alloc] init];
+	topPageReverseOverlay.backgroundColor = [[[UIColor whiteColor] colorWithAlphaComponent:0.8] CGColor];
+	
+	topPageReverseShading = [[CAGradientLayer alloc] init];
+	topPageReverseShading.colors = [NSArray arrayWithObjects:
+									(id)[[[UIColor blackColor] colorWithAlphaComponent:0.6] CGColor],
+									(id)[[UIColor clearColor] CGColor],
+									nil];
+	topPageReverseShading.startPoint = CGPointMake(1,0.5);
+	topPageReverseShading.endPoint = CGPointMake(0,0.5);
+	
+	bottomPage = [[CALayer alloc] init];
+    bottomPage.contentsGravity = kCAGravityLeft;
+	bottomPage.backgroundColor = [[UIColor whiteColor] CGColor];
+	bottomPage.masksToBounds = YES;
+	
+	bottomPageShadow = [[CAGradientLayer alloc] init];
+	bottomPageShadow.colors = [NSArray arrayWithObjects:
+							   (id)[[[UIColor blackColor] colorWithAlphaComponent:0.6] CGColor],
+							   (id)[[UIColor clearColor] CGColor],
+							   nil];
+	bottomPageShadow.startPoint = CGPointMake(0,0.5);
+	bottomPageShadow.endPoint = CGPointMake(1,0.5);
+	
+	[topPage addSublayer:topPageOverlay];
+	[bottomPage addSublayer:bottomPageOverlay];
+	[bottomPage addSublayer:bottomPageShadow];
+	[self.layer addSublayer:bottomPage];
+	[self.layer addSublayer:topPage];
+	
+	self.leafEdge = 1.0;
+}
+
+/////////////////////////////////////////////////////////////////////////
+- (void) setUpLayersTurnPage {
 	self.clipsToBounds = YES;
 	
 	topPage = [[CALayer alloc] init];
@@ -84,6 +155,13 @@ CGFloat distance(CGPoint a, CGPoint b);
 	self.leafEdge = 1.0;
 }
 
+
+/////////////////////////////////////////////////////////////////////////
+- (void) setUpLayers {
+    [self setUpLayersDragPage];
+}
+
+/////////////////////////////////////////////////////////////////////////
 - (void) initialize {
 	backgroundRendering = NO;
 	pageCache = [[LeavesCache alloc] initWithPageSize:self.bounds.size];
@@ -113,7 +191,10 @@ CGFloat distance(CGPoint a, CGPoint b);
 	[topPageReverseShading release];
 	[bottomPage release];
 	[bottomPageShadow release];
-	
+	[topPageOverlay release];
+    [bottomPageOverlay release];
+    [topPageOverlayMask release];
+    
 	[pageCache release];
 	
     [super dealloc];
@@ -122,6 +203,9 @@ CGFloat distance(CGPoint a, CGPoint b);
 - (void) reloadData {
 	[pageCache flush];
 	numberOfPages = [pageCache.dataSource numberOfPagesInLeavesView:self];
+    //-- SDS: if pageSize is not initialized when calling reloadData, drawing fails
+    pageSize = self.bounds.size;
+    pageCache.pageSize = self.bounds.size;    
 	self.currentPageIndex = 0;
 }
 
@@ -138,10 +222,12 @@ CGFloat distance(CGPoint a, CGPoint b);
 		topPage.contents = nil;
 		topPageReverseImage.contents = nil;
 		bottomPage.contents = nil;
+        topPageOverlay.contents = nil;
+		bottomPageOverlay.contents = nil;
 	}
 }
 
-- (void) setLayerFrames {
+- (void) setLayerFramesTurnPage {
 	topPage.frame = CGRectMake(self.layer.bounds.origin.x, 
 							   self.layer.bounds.origin.y, 
 							   leafEdge * self.bounds.size.width, 
@@ -167,6 +253,48 @@ CGFloat distance(CGPoint a, CGPoint b);
 										40, 
 										bottomPage.bounds.size.height);
 	topPageOverlay.frame = topPage.bounds;
+}
+
+/////////////////////////////////////////////////////////////////////////
+- (void) setLayerFramesDragPage {
+    
+    if ([self.delegate leavesView:self canSwipeHorizontallyPageAtIndex:0]) {
+        
+        topPage.frame = CGRectMake(self.layer.bounds.origin.x, 
+                                   self.layer.bounds.origin.y, 
+                                   leafEdge * self.bounds.size.width, 
+                                   self.layer.bounds.size.height);
+        
+        bottomPage.frame = CGRectMake(leafEdge * self.bounds.size.width,
+                                      self.layer.bounds.origin.y,
+                                      (1.0-leafEdge) * self.bounds.size.width,
+                                      self.layer.bounds.size.height);
+        
+        CGRect frame = topPageOverlay.frame;
+        frame.origin.x = (leafEdge-1.0) * self.bounds.size.width;
+        topPageOverlay.frame = frame;
+        
+    } else if ([self.delegate leavesView:self canSwipeVerticallyPageAtIndex:0]) {
+        
+        topPage.frame = CGRectMake(self.layer.bounds.origin.x, 
+                                   self.layer.bounds.origin.y - (1.0 - leafEdge) * self.bounds.size.height, 
+                                   self.bounds.size.width, 
+                                   self.layer.bounds.size.height);
+        
+        bottomPage.frame = CGRectMake(self.layer.bounds.origin.x,
+                                      leafEdge * self.bounds.size.height,
+                                      self.bounds.size.width,
+                                      self.layer.bounds.size.height);
+        
+        CGRect frame = topPageOverlay.frame;
+        frame.origin.y = (leafEdge-1.0) * self.bounds.size.height;
+        //        topPageOverlay.frame = frame;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////
+- (void) setLayerFrames {
+    [self setLayerFramesDragPage];
 }
 
 - (void) willTurnToPageAtIndex:(NSUInteger)index {
