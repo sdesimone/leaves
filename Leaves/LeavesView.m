@@ -7,12 +7,7 @@
 //
 
 #import "LeavesView.h"
-
-@interface LeavesView () 
-
-@property (assign) CGFloat leafEdge;
-
-@end
+#import "CustomLayer.h"
 
 CGFloat distance(CGPoint a, CGPoint b);
 
@@ -308,12 +303,12 @@ CGFloat distance(CGPoint a, CGPoint b);
 }
 
 - (void) didTurnPageBackward {
-	interactionLocked = NO;
+//	interactionLocked = NO;
 	[self didTurnToPageAtIndex:currentPageIndex];
 }
 
 - (void) didTurnPageForward {
-	interactionLocked = NO;
+//	interactionLocked = NO;
 	self.currentPageIndex = self.currentPageIndex + 1;	
 	[self didTurnToPageAtIndex:currentPageIndex];
 }
@@ -395,6 +390,26 @@ CGFloat distance(CGPoint a, CGPoint b);
 - (void) setPreferredTargetWidth:(CGFloat)value {
 	preferredTargetWidth = value;
 	[self updateTargetRects];
+}
+
+/////////////////////////////////////////////////////////////////////////
+//-- SDS: added cleanTopOverlay and setTopPageOverlay
+/////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////
+- (void)cleanTopOverlay {
+    topPageOverlay.contents = nil;
+}
+
+/////////////////////////////////////////////////////////////////////////
+- (void)setTopPageOverlay:(CALayer*)overlay {
+	[CATransaction begin];
+	[CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+    [topPageOverlay removeFromSuperlayer];
+    topPageOverlay = overlay;
+    [topPage addSublayer:topPageOverlay];
+	self.leafEdge = 1.0;
+	[CATransaction commit];
 }
 
 #pragma mark UIResponder methods
