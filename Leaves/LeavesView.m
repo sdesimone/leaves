@@ -412,6 +412,73 @@ CGFloat distance(CGPoint a, CGPoint b);
 	[CATransaction commit];
 }
 
+#pragma mark -
+#pragma mark Gesture recognizer Support
+/////////////////////////////////////////////////////////////////////////
+//-- a gesture recognizer can be set up in a view controller so that it calls the following methods
+//-- in each appropriate phase.
+/////////////////////////////////////////////////////////////////////////
+- (bool)handleTouchBegan:(UIGestureRecognizer*)recognizer {
+    [CATransaction begin];
+    [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+    bottomPageOverlay.contents = topPageOverlay.contents;
+    bottomPageOverlay.frame = topPageOverlay.frame;
+    topPageOverlay.contents = nil;
+    self.currentPageIndex = self.currentPageIndex - 1;
+    self.leafEdge = 0.0;
+    [CATransaction commit];
+    return YES;
+}
+
+/////////////////////////////////////////////////////////////////////////
+- (bool)handleTouchMoved:(UIGestureRecognizer*)recognizer {
+    CGPoint touchPoint = [recognizer locationInView:self];
+    [CATransaction begin];
+    [CATransaction setValue:[NSNumber numberWithFloat:0.07] forKey:kCATransactionAnimationDuration];
+    
+    if ([self.delegate leavesView:self canSwipeHorizontallyPageAtIndex:0])
+        self.leafEdge = touchPoint.x / self.bounds.size.width;
+    else if ([self.delegate leavesView:self canSwipeVerticallyPageAtIndex:0])
+        self.leafEdge = touchPoint.y / self.bounds.size.height;
+    
+    [CATransaction commit];
+    return YES;
+}
+
+#define kDidTurnDelay 0.25
+/////////////////////////////////////////////////////////////////////////
+- (bool)handleTouchEnded:(bool)dragged {
+	
+	bool interactionLockedFlag = NO;
+	[CATransaction begin];
+	float duration;
+	if (dragged) {
+		[self willTurnToPageAtIndex:currentPageIndex+1];
+		self.leafEdge = 0;
+		duration = leafEdge;
+		interactionLockedFlag = YES;
+		if (currentPageIndex+2 < numberOfPages && backgroundRendering)
+			[pageCache precacheImageForPageIndex:currentPageIndex+2];
+		[self performSelector:@selector(didTurnPageForward)
+				   withObject:nil 
+				   afterDelay:duration + kDidTurnDelay];
+	}
+	else {
+		[self willTurnToPageAtIndex:currentPageIndex];
+		self.leafEdge = 1.0;
+		duration = 1 - leafEdge;
+		interactionLockedFlag = YES;
+		[self performSelector:@selector(didTurnPageBackward)
+				   withObject:nil 
+				   afterDelay:duration + kDidTurnDelay];
+	}
+	[CATransaction setValue:[NSNumber numberWithFloat:duration]
+					 forKey:kCATransactionAnimationDuration];
+	[CATransaction commit];
+    return interactionLockedFlag;
+}
+
+#pragma mark -
 #pragma mark UIResponder methods
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
