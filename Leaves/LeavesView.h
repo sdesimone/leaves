@@ -88,5 +88,10 @@
 // called when the page-turn animation (following a touch-up or drag) completes 
 - (void) leavesView:(LeavesView *)leavesView didTurnToPageAtIndex:(NSUInteger)pageIndex;
 
+//-- SDS: added this
+- (BOOL)leavesView:(LeavesView*)leavesView canSwipeHorizontallyPageAtIndex:(NSUInteger)pageIndex;
+- (BOOL)leavesView:(LeavesView*)leavesView canSwipeVerticallyPageAtIndex:(NSUInteger)pageIndex;
+
+
 @end
 
