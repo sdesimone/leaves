@@ -67,6 +67,13 @@
 // refreshes the contents of all pages via the data source methods, much like -[UITableView reloadData]
 - (void) reloadData;
 
+- (UIImage*)overrideGLPage:(NSUInteger)page withRect:(CGRect)rect;
+- (void)overridePage:(NSUInteger)page fromView:(UIView*)view;
+- (void)unOverridePage:(NSUInteger)page;
+
+- (CGImageRef)imageForCurrentPage;
+
+
 @end
 
 
@@ -74,6 +81,10 @@
 
 - (NSUInteger) numberOfPagesInLeavesView:(LeavesView*)leavesView;
 - (void) renderPageAtIndex:(NSUInteger)index inContext:(CGContextRef)ctx;
+
+- (UIImage*)overrideGLPage:(NSUInteger)page withRect:(CGRect)rect;
+- (void)overridePage:(NSUInteger)page fromView:(UIView*)view;
+- (void)unOverridePage:(NSUInteger)page;
 
 @end
 

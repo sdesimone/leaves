@@ -487,6 +487,40 @@ CGFloat distance(CGPoint a, CGPoint b);
 	[CATransaction commit];
 }
 
+#pragma mark Image Override
+/////////////////////////////////////////////////////////////////////////
+- (UIImage*)overrideGLPage:(NSUInteger)page withRect:(CGRect)rect {
+    [pageCache invalidateCacheForPage:page];
+    return [self.dataSource overrideGLPage:page withRect:rect];
+}
+
+/////////////////////////////////////////////////////////////////////////
+- (void)overridePage:(NSUInteger)page fromView:(UIView*)view {
+    [self.dataSource overridePage:page fromView:view];
+    [pageCache invalidateCacheForPage:page];
+}
+
+/////////////////////////////////////////////////////////////////////////
+// -- this can be called async
+- (void)overridePage:(NSArray*)args {
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    [self overridePage:[[args objectAtIndex:0] intValue] fromView:[args objectAtIndex:1]];
+    [pool release];
+}
+
+/////////////////////////////////////////////////////////////////////////
+- (void)unOverridePage:(NSUInteger)page {
+    [self.dataSource unOverridePage:page];
+    [pageCache invalidateCacheForPage:page];
+}
+
+/////////////////////////////////////////////////////////////////////////
+- (CGImageRef)imageForCurrentPage {
+    return [pageCache imageForPageIndex:currentPageIndex];
+}
+
+#pragma mark -
+
 - (void) layoutSubviews {
 	[super layoutSubviews];
 	
@@ -501,7 +535,8 @@ CGFloat distance(CGPoint a, CGPoint b);
 		[CATransaction commit];
 		pageCache.pageSize = self.bounds.size;
 		[self getImages];
-		[self updateTargetRects];
+        //-- SDS: this is not necessary anymore
+//		[self updateTargetRects];
 	}
 }
 
